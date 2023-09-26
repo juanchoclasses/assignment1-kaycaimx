@@ -46,6 +46,7 @@ export class FormulaEvaluator {
     this._result = formula.length;
     this._errorMessage = "";
 
+    // test only provide scenarios for 1-5 tokens, error msg start from 7 tokens, what about 6 tokens?
     switch (formula.length) {
       case 0:
         this._errorMessage = ErrorMessages.emptyFormula;
@@ -134,6 +135,8 @@ export class FormulaEvaluator {
           } else {
             this._result = value1 / value3;
           }
+        } else {
+          this._errorMessage = ErrorMessages.invalidFormula;
         }
       } else if (
         token1 === "(" &&
@@ -192,6 +195,8 @@ export class FormulaEvaluator {
           this._result = value1 + value3 * value5;
         } else if (token2 === "+" && token4 === "/") {
           this._result = value1 + value3 / value5;
+        } else {
+          this._errorMessage = ErrorMessages.invalidFormula;
         }
       }
     }

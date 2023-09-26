@@ -82,6 +82,9 @@ function SpreadSheet({ documentName }: SpreadSheetProps) {
    * the other buttons do require asynchronous processing and so the function is marked async
    */
   async function onCommandButtonClick(text: string): Promise<void> {
+    
+    //pop up an alert message if the user attempts to interact with the spreadsheet without entering a name first
+    !userName && alert("User name is required!");
 
     switch (text) {
       case ButtonNames.edit_toggle:
