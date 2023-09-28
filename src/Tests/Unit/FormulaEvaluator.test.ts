@@ -304,5 +304,45 @@ describe("FormulaEvaluator", () => {
         expect(error).toEqual(ErrorMessages.invalidFormula);
       });
     });
+
+    describe("when the formula is 2 - 2 + 3 * 4 ", () => {
+      it("returns the number", () => {
+        const formula = ["2", "-", "2", "+", "3", "*", "4"];
+
+        recalc.evaluate(formula);
+
+        let result = recalc.result;
+        let error = recalc.error;
+
+        expect(result).toEqual(12);
+        expect(error).toEqual("");
+      });
+    });
+
+    describe("when the formula is 16 / (2 * (5 - 3)) ", () => {
+      it("returns the number", () => {
+        const formula = [
+          "16",
+          "/",
+          "(",
+          "2",
+          "*",
+          "(",
+          "5",
+          "-",
+          "3",
+          ")",
+          ")",
+        ];
+
+        recalc.evaluate(formula);
+
+        let result = recalc.result;
+        let error = recalc.error;
+
+        expect(result).toEqual(4);
+        expect(error).toEqual("");
+      });
+    });
   });
 });

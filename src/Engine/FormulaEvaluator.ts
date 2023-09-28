@@ -1,6 +1,7 @@
 import Cell from "./Cell";
 import SheetMemory from "./SheetMemory";
 import { ErrorMessages } from "./GlobalDefinitions";
+import { FormulaParser } from "./FormulaParser";
 
 export class FormulaEvaluator {
   // Define a function called update that takes a string parameter and returns a number
@@ -42,164 +43,49 @@ export class FormulaEvaluator {
 
   evaluate(formula: FormulaType) {
     // set the this._result to the length of the formula
+    let error: string = "";
 
-    this._result = formula.length;
-    this._errorMessage = "";
-
-    // test only provide scenarios for 1-5 tokens, error msg start from 7 tokens, what about 6 tokens?
-    switch (formula.length) {
-      case 0:
-        this._errorMessage = ErrorMessages.emptyFormula;
-        break;
-      case 7:
-        this._errorMessage = ErrorMessages.partial;
-        break;
-      case 8:
-        this._errorMessage = ErrorMessages.divideByZero;
-        break;
-      case 9:
-        this._errorMessage = ErrorMessages.invalidCell;
-        break;
-      case 10:
-        this._errorMessage = ErrorMessages.invalidFormula;
-        break;
-      case 11:
-        this._errorMessage = ErrorMessages.invalidNumber;
-        break;
-      case 12:
-        this._errorMessage = ErrorMessages.invalidOperator;
-        break;
-      case 13:
-        this._errorMessage = ErrorMessages.missingParentheses;
-        break;
-      default:
-        this._errorMessage = "";
-        break;
-    }
-
-    // if the formula has only one token
-    if (formula.length === 1) {
-      let token = formula[0];
+    const newFormula = formula.map((token) => {
       if (this.isNumber(token)) {
-        this._result = Number(token);
+        return Number(token);
       } else if (this.isCellReference(token)) {
-        let [value, error] = this.getCellValue(token);
-        this._result = value;
-        this._errorMessage = error;
+        return this.getCellValue(token)[0];
       } else {
-        this._errorMessage = ErrorMessages.invalidFormula;
+        return token;
       }
+    });
 
-      // if the formula has two tokens
-    } else if (formula.length === 2) {
-      let token1 = formula[0];
-      let token2 = formula[1];
-      if (token1 === "(" && token2 === ")") {
-        this._errorMessage = ErrorMessages.missingParentheses;
-        this._result = 0;
-      } else if (this.isNumber(token1) || this.isCellReference(token1)) {
-        this._result = this.isNumber(token1)
-          ? Number(token1)
-          : this.getCellValue(token1)[0];
-        this._errorMessage = ErrorMessages.invalidFormula;
-      }
+    const invalidEnds = ["+", "-", "*", "/", "("];
 
-      // if the formula has three tokens
-    } else if (formula.length === 3) {
-      let token1 = formula[0];
-      let token2 = formula[1];
-      let token3 = formula[2];
-
-      // if the first and third tokens are numbers/cellReferences and the second token is an operator
-      if (
-        (this.isNumber(token1) || this.isCellReference(token1)) &&
-        (this.isNumber(token3) || this.isCellReference(token3))
-      ) {
-        let value1 = this.isNumber(token1)
-          ? Number(token1)
-          : this.getCellValue(token1)[0];
-        let value3 = this.isNumber(token3)
-          ? Number(token3)
-          : this.getCellValue(token3)[0];
-        if (token2 === "+") {
-          this._result = value1 + value3;
-        } else if (token2 === "-") {
-          this._result = value1 - value3;
-        } else if (token2 === "*") {
-          this._result = value1 * value3;
-        } else if (token2 === "/") {
-          if (value3 === 0) {
-            // divide by zero
-            this._result = Infinity;
-            this._errorMessage = ErrorMessages.divideByZero;
-          } else {
-            this._result = value1 / value3;
-          }
+    for (const invalidEnd of invalidEnds) {
+      while (newFormula.length > 0) {
+        if (newFormula[newFormula.length - 1] === invalidEnd) {
+          error = ErrorMessages.invalidFormula;
+          newFormula.pop();
         } else {
-          this._errorMessage = ErrorMessages.invalidFormula;
-        }
-      } else if (
-        token1 === "(" &&
-        (this.isNumber(token2) || this.isCellReference(token2)) &&
-        token3 === ")"
-      ) {
-        this._result = this.isNumber(token2)
-          ? Number(token2)
-          : this.getCellValue(token2)[0];
-      } else if (this.isNumber(token1) || this.isCellReference(token1)) {
-        this._result = this.isNumber(token1)
-          ? Number(token1)
-          : this.getCellValue(token1)[0];
-        this._errorMessage = ErrorMessages.invalidFormula;
-      }
-
-      // if the formula has four tokens
-    } else if (formula.length === 4) {
-      let token1 = formula[0];
-      let token2 = formula[1];
-      let token3 = formula[2];
-      if (
-        (this.isNumber(token1) || this.isCellReference(token1)) &&
-        (this.isNumber(token3) || this.isCellReference(token3))
-      ) {
-        this.evaluate([token1, token2, token3]);
-        this._errorMessage = ErrorMessages.invalidFormula;
-      }
-
-      // if the formula has five tokens
-    } else if (formula.length === 5) {
-      let token1 = formula[0];
-      let token2 = formula[1];
-      let token3 = formula[2];
-      let token4 = formula[3];
-      let token5 = formula[4];
-      if (
-        (this.isNumber(token1) || this.isCellReference(token1)) &&
-        (this.isNumber(token3) || this.isCellReference(token3)) &&
-        (this.isNumber(token5) || this.isCellReference(token5))
-      ) {
-        let value1 = this.isNumber(token1)
-          ? Number(token1)
-          : this.getCellValue(token1)[0];
-        let value3 = this.isNumber(token3)
-          ? Number(token3)
-          : this.getCellValue(token3)[0];
-        let value5 = this.isNumber(token5)
-          ? Number(token5)
-          : this.getCellValue(token5)[0];
-        if (token2 === "+" && token4 === "+") {
-          this._result = value1 + value3 + value5;
-        } else if (token2 === "+" && token4 === "-") {
-          this._result = value1 + value3 - value5;
-        } else if (token2 === "+" && token4 === "*") {
-          this._result = value1 + value3 * value5;
-        } else if (token2 === "+" && token4 === "/") {
-          this._result = value1 + value3 / value5;
-        } else {
-          this._errorMessage = ErrorMessages.invalidFormula;
+          break;
         }
       }
     }
+
+    // for (const invalidEnd of invalidEnds) {
+    //   if (newFormula[newFormula.length - 1] === invalidEnd) {
+    //     error = ErrorMessages.invalidFormula;
+    //     newFormula.pop();
+    //   }
+    // }
+    //}
+
+    const parser = new FormulaParser(newFormula);
+    try {
+      this._result = parser.parse()!;
+    } catch (err: any) {
+      error = err.message;
+    }
+    if (this._result === Infinity) {
+      error = ErrorMessages.divideByZero;
+    }
+    this._errorMessage = error;
   }
 
   public get error(): string {
