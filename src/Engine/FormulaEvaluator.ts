@@ -55,18 +55,28 @@ export class FormulaEvaluator {
       }
     });
 
-    const invalidEnds = ["+", "-", "*", "/", "("];
-
-    for (const invalidEnd of invalidEnds) {
-      while (newFormula.length > 0) {
-        if (newFormula[newFormula.length - 1] === invalidEnd) {
-          error = ErrorMessages.invalidFormula;
-          newFormula.pop();
-        } else {
-          break;
-        }
+    const invalidEnds = /[+\-*/(]$/;
+    while (newFormula.length > 0) {
+      if (invalidEnds.test(newFormula[newFormula.length - 1])) {
+        error = ErrorMessages.invalidFormula;
+        newFormula.pop();
+      } else {
+        break;
       }
     }
+
+    // const invalidEnds = ["+", "-", "*", "/", "("];
+
+    // for (const invalidEnd of invalidEnds) {
+    //   while (newFormula.length > 0) {
+    //     if (newFormula[newFormula.length - 1] === invalidEnd) {
+    //       error = ErrorMessages.invalidFormula;
+    //       newFormula.pop();
+    //     } else {
+    //       break;
+    //     }
+    //   }
+    // }
 
     // for (const invalidEnd of invalidEnds) {
     //   if (newFormula[newFormula.length - 1] === invalidEnd) {
