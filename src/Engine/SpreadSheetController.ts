@@ -312,6 +312,9 @@ export class SpreadSheetController {
       return;
     }
     const userEditing = this._contributingUsers.get(user);
+    if (!userEditing!.isEditing) {
+      return;      
+    }
     if (!userEditing) {
       return;
     }

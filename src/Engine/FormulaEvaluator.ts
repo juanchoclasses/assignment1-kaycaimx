@@ -24,6 +24,13 @@ export class FormulaEvaluator {
     // set the error message to the empty string
     let error: string = "";
 
+    // if the formula is empty, set the result to 0 and set the error message to be Empty Formula
+    if (formula.length === 0) {
+      this._result = 0;
+      this._errorMessage = ErrorMessages.emptyFormula;
+      return;
+    }
+
     // convert CellReferences in the formula to values, and convert numeric strings to numbers
     // else, keep the token itself (for operators and parentheses)
     // create a new array called newFormula with the converted values
