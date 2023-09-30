@@ -17,45 +17,30 @@ export class FormulaEvaluator {
   }
 
   /**
-    * place holder for the evaluator.   I am not sure what the type of the formula is yet 
-    * I do know that there will be a list of tokens so i will return the length of the array
-    * 
-    * I also need to test the error display in the front end so i will set the error message to
-    * the error messages found In GlobalDefinitions.ts
-    * 
-    * according to this formula.
-    * 
-    7 tokens partial: "#ERR",
-    8 tokens divideByZero: "#DIV/0!",
-    9 tokens invalidCell: "#REF!",
-  10 tokens invalidFormula: "#ERR",
-  11 tokens invalidNumber: "#ERR",
-  12 tokens invalidOperator: "#ERR",
-  13 missingParentheses: "#ERR",
-  0 tokens emptyFormula: "#EMPTY!",
-
-                    When i get back from my quest to save the world from the evil thing i will fix.
-                      (if you are in a hurry you can fix it yourself)
-                               Sincerely 
-                               Bilbo
-    * 
+   * @param formula
+   * @returns the result of the formula and sets the error message
    */
-
   evaluate(formula: FormulaType) {
-    // set the this._result to the length of the formula
+    // set the error message to the empty string
     let error: string = "";
 
+    // convert CellReferences in the formula to values, and convert numeric strings to numbers
+    // else, keep the token itself (for operators and parentheses)
+    // create a new array called newFormula with the converted values
     const newFormula = formula.map((token) => {
       if (this.isNumber(token)) {
         return Number(token);
       } else if (this.isCellReference(token)) {
+        error = this.getCellValue(token)[1];
         return this.getCellValue(token)[0];
       } else {
         return token;
       }
     });
 
-    const invalidEnds = /[+\-*/(]$/;
+    // keep removing trailing operators and left parenthesis from the newFormula,
+    // set error message to be Invalid Formula
+    const invalidEnds = /[+\-*/(]$/; // regex for invalid ends: + - * / (
     while (newFormula.length > 0) {
       if (invalidEnds.test(newFormula[newFormula.length - 1])) {
         error = ErrorMessages.invalidFormula;
@@ -65,30 +50,12 @@ export class FormulaEvaluator {
       }
     }
 
-    // const invalidEnds = ["+", "-", "*", "/", "("];
-
-    // for (const invalidEnd of invalidEnds) {
-    //   while (newFormula.length > 0) {
-    //     if (newFormula[newFormula.length - 1] === invalidEnd) {
-    //       error = ErrorMessages.invalidFormula;
-    //       newFormula.pop();
-    //     } else {
-    //       break;
-    //     }
-    //   }
-    // }
-
-    // for (const invalidEnd of invalidEnds) {
-    //   if (newFormula[newFormula.length - 1] === invalidEnd) {
-    //     error = ErrorMessages.invalidFormula;
-    //     newFormula.pop();
-    //   }
-    // }
-    //}
-
+    // pass the new formula (without invalid ends) to the parser
+    // try parse() and catch any errors
+    // if the result is Infinity, set error message to be Divide by Zero
     const parser = new FormulaParser(newFormula);
     try {
-      this._result = parser.parse()!;
+      this._result = parser.parse();
     } catch (err: any) {
       error = err.message;
     }

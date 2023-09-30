@@ -321,19 +321,7 @@ describe("FormulaEvaluator", () => {
 
     describe("when the formula is 16 / (2 * (5 - 3)) ", () => {
       it("returns the number", () => {
-        const formula = [
-          "16",
-          "/",
-          "(",
-          "2",
-          "*",
-          "(",
-          "5",
-          "-",
-          "3",
-          ")",
-          ")",
-        ];
+        const formula = ["16","/","(","2","*","(","5","-","3",")",")",];
 
         recalc.evaluate(formula);
 
@@ -342,6 +330,20 @@ describe("FormulaEvaluator", () => {
 
         expect(result).toEqual(4);
         expect(error).toEqual("");
+      });
+    });
+
+    describe("when the formula is 1 * (3 - 1 ", () => {
+      it("returns the number", () => {
+        const formula = ["1","*","(","3","-","1"];
+
+        recalc.evaluate(formula);
+
+        let result = recalc.result;
+        let error = recalc.error;
+
+        //expect(result).toEqual(2);
+        expect(error).toEqual(ErrorMessages.missingParentheses);
       });
     });
   });
