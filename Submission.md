@@ -10,7 +10,8 @@ GitHub Handle:
 
 - Did you use any external resources? 
   - chatGPT
-  - supriyo_biswas. "Calculator implemented as a recursive descent parser." https://www.mycompiler.io/view/3TFZagC (accessed September 29, 2023).
+  - Supriyo Biswas. "Building Recursive Descent Parsers: The Definitive Guide." https://www.booleanworld.com/building-recursive-descent-parsers-definitive-guide/ (accessed September 29, 2023).
+  - Supriyo Biswas. "Calculator implemented as a recursive descent parser." https://www.mycompiler.io/view/3TFZagC (accessed September 29, 2023).
   - regular expression 101: https://regex101.com/ (accessed September 30, 2023). 
 
 (tbd if any)
